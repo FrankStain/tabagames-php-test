@@ -11,7 +11,7 @@ if( !function_exists( '__autoload' ) ){
 
 	function __autoload( $sClassName ){
 
-		CSlAutoloader::requireClass( $sClassName );
+		CModule::requireClass( $sClassName );
 
 	};
 
@@ -82,7 +82,7 @@ class CModule {
 	 *
 	 * @return bool		Флаг удачности операции. Если false, значит что-то не так с параметром aClasses.
 	 */
-	static public function includeAutoloadClasses( $aClasses ){
+	static public function addAutoloadedClasses( $aClasses ){
 
 		if( !( is_array( $aClasses ) && count( $aClasses ) ) ){
 
@@ -216,6 +216,7 @@ class CModule {
 	static protected function logInfo( $sMessage ){
 		//echo( '[ I ] : '.$sMessage.PHP_EOL );
 	}
+
 
 };
 

@@ -7,15 +7,24 @@
  */
 
 // Определяем корневой каталог классов
-define('BLOG_INCLUDE_ROOT', dirname(realpath(__FILE__)));
+define( 'BLOG_INCLUDE_ROOT', dirname( realpath( __FILE__ ) ) );
+
+// А вот тут у нас должны лежать конфиги
+define( 'BLOG_CONFIG_ROOT', dirname( BLOG_INCLUDE_ROOT ).'/config' );
 
 // Подключаен автозагрузчик
-require_once(BLOG_INCLUDE_ROOT.'/common/CModule.php');
+require_once( BLOG_INCLUDE_ROOT.'/common/CModule.php' );
 
 // Инициализируем библиотеку автозагрузчика
-CModule::addAutoloadedClasses(array(
+CModule::addAutoloadedClasses( array(
 
-));
+	'CRegistry' => '/common/CRegistry.php',
+	'CDatabase' => '/common/CDatabase.php',
+
+) );
+
+// Ставим сервисы
+CRegistry::setService( 'DB', CDatabase::getMongoDb() );
 
 
 ?>
