@@ -20,6 +20,11 @@ class CDatabase {
 
 
 	/**
+	 * Помогает получить конфиг для БД монго
+	 *
+	 * @return array				Конфигурация для монго из файла /config/database.conf
+	 *
+	 * @throws CDatabaseException	Если файла конфига или самой секции конфига не существует
 	 */
 	static protected function getMongoConfig(){
 
@@ -35,6 +40,9 @@ class CDatabase {
 
 
 	/**
+	 * Позволяет получить инстанцию объекта Mongo
+	 *
+	 * @return Mongo				Уже сконфигурированный объект mongo
 	 */
 	static public function getMongoInstance(){
 
@@ -46,6 +54,8 @@ class CDatabase {
 
 
 	/**
+	 * Выполняет инициализацию и конфигурирование объекта монго
+	 *
 	 */
 	static protected function initMongoInstance(){
 
@@ -72,6 +82,9 @@ class CDatabase {
 
 
 	/**
+	 * Помогает установить инстанцию объекта монго.
+	 *
+	 * @param Mongo		$oMongoInstance		Инстанция объекта, которую надо записать
 	 */
 	static protected function setMongoInstance( Mongo $oMongoInstance ){
 
@@ -81,6 +94,9 @@ class CDatabase {
 
 
 	/**
+	 * Позволяет получить инстанцию объекта базы монго
+	 *
+	 * @return MongoDB				Объект готовой к работе БД
 	 */
 	static public function getMongoDb(){
 
@@ -90,7 +106,10 @@ class CDatabase {
 
 	}
 
+
 	/**
+	 * Выполняет инициализацию и конфигурирование объекта БД монго
+	 *
 	 */
 	static protected function initMongoDb(){
 
@@ -112,7 +131,11 @@ class CDatabase {
 
 	}
 
+
 	/**
+	 * Помогает установить инстанцию объекта монго.
+	 *
+	 * @param MongoDB		$oMongoDb		Инстанция объекта, которую надо записать
 	 */
 	static protected function setMongoDb( MongoDB $oMongoDb ){
 

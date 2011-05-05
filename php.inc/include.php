@@ -24,7 +24,15 @@ CModule::addAutoloadedClasses( array(
 ) );
 
 // Ставим сервисы
-CRegistry::setService( 'DB', CDatabase::getMongoDb() );
+try{
+
+	CRegistry::setService( 'DB', CDatabase::getMongoDb() );
+
+}catch( CDatabaseException $e ){
+
+	die( $e->getMessage() );
+
+};
 
 
 ?>
