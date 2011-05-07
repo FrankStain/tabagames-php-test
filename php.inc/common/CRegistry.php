@@ -8,6 +8,13 @@
  * @since		2011-05-05
  */
 
+// Общий класс для всех видов ошибок реестра
+class CRegistryException extends Exception {};
+
+// Не удалось найти требуемый сервис
+class CServiceNotFound extends CRegistryException {};
+
+
 class CRegistry {
 
 
@@ -17,19 +24,15 @@ class CRegistry {
 
 	/**
 	 * Позволяет обратиться к сервису.
-	 * Если сервис не удается найти - метод вернет false. Это на 100% означает,
-	 * что если сервис не найден, далее (при обращении к сервису через ->) последует фатальная ошибка.
-	 * Это вполне нормально. Этот участок кода может либо работать, либо положить систему на лопатки.
-	 * И работать он должен на 120% верно, то есть, должны быть определены и доступны полностью все используемые сервисы.
-	 * (такой подход разумен только в рамках этого проектика, в иной ситуации я, скорее, предпочту сделать систему исключений)
 	 *
 	 * @param string	$sServiceName	Название сервиса.
 	 *
-	 * @return object|false				Либо вернет требуемый сервис, либо - false
+	 * @return object					Требуемый сервис
+	 * @throws CServiceNotFound			Если сервис не получается найти, метод бросается исключением
 	 */
 	static public function service( $sServiceName ){
 
-		if( !isset( self::$aServices[ $sServiceName ] ) ) return false;
+		if( !isset( self::$aServices[ $sServiceName ] ) ) throw new CServiceNotFound( 'There are no service named '.$sServiceName );
 
 		// Строкой задается не сам сервис, а его локатор, т.е. место нахождения сервиса.
 		// В данном случае - это будет имя класса сервиса, для создания сервиса используется только конструктор по умолчанию
@@ -40,7 +43,7 @@ class CRegistry {
 
 		};
 
-		if( !is_object( self::$aServices[ $sServiceName ] ) ) return false;
+		if( !is_object( self::$aServices[ $sServiceName ] ) ) throw new CServiceNotFound( 'There are no service named '.$sServiceName );
 
 		return self::$aServices[ $sServiceName ];
 

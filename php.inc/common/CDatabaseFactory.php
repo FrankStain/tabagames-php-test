@@ -6,9 +6,9 @@
  * @since		2011-05-05
  */
 
-class CDatabaseException extends Exception {};
+class CDatabaseFactoryException extends Exception {};
 
-class CDatabase {
+class CDatabaseFactory {
 
 
 	/** @var Mongo			Инстанция объекта Mongo */
@@ -24,15 +24,15 @@ class CDatabase {
 	 *
 	 * @return array				Конфигурация для монго из файла /config/database.conf
 	 *
-	 * @throws CDatabaseException	Если файла конфига или самой секции конфига не существует
+	 * @throws CDatabaseFactoryException	Если файла конфига или самой секции конфига не существует
 	 */
 	static protected function getMongoConfig(){
 
 		$aDBConfig = parse_ini_file( BLOG_CONFIG_ROOT.'/database.conf', true );
-		if( !is_array( $aDBConfig ) ) throw new CDatabaseException( 'Main database config not found.' );
+		if( !is_array( $aDBConfig ) ) throw new CDatabaseFactoryException( 'Main database config not found.' );
 
 		$aMongoConfig = $aDBConfig['mongo'];
-		if( !is_array( $aMongoConfig ) ) throw new CDatabaseException( 'Mongo database config not found.' );
+		if( !is_array( $aMongoConfig ) ) throw new CDatabaseFactoryException( 'Mongo database config not found.' );
 
 		return $aMongoConfig;
 
@@ -72,7 +72,7 @@ class CDatabase {
 
 		}catch( MongoConnectionException $e ){
 
-			throw new CDatabaseException( 'Mongo connection failed. '.$e->getMessage() );
+			throw new CDatabaseFactoryException( 'Mongo connection failed. '.$e->getMessage() );
 
 		};
 
@@ -125,7 +125,7 @@ class CDatabase {
 
 		}catch( MongoException $e ){
 
-			throw new CDatabaseException( 'Can not select Mongo database. '.$e->getMessage() );
+			throw new CDatabaseFactoryException( 'Can not select Mongo database. '.$e->getMessage() );
 
 		};
 

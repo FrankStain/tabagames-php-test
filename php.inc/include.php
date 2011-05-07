@@ -18,17 +18,17 @@ require_once( BLOG_INCLUDE_ROOT.'/common/CModule.php' );
 // Инициализируем библиотеку автозагрузчика
 CModule::addAutoloadedClasses( array(
 
-	'CRegistry' => '/common/CRegistry.php',
-	'CDatabase' => '/common/CDatabase.php',
+	'CRegistry'				=> '/common/CRegistry.php',
+	'CDatabaseFactory'		=> '/common/CDatabaseFactory.php',
 
 ) );
 
 // Ставим сервисы
 try{
 
-	CRegistry::setService( 'DB', CDatabase::getMongoDb() );
+	CRegistry::setService( 'DB', CDatabaseFactory::getMongoDb() );
 
-}catch( CDatabaseException $e ){
+}catch( CDatabaseFactoryException $e ){
 
 	die( $e->getMessage() );
 
