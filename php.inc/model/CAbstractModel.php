@@ -25,16 +25,21 @@ abstract class CAbstractModel {
 
 
 	/**
+	 * Всего лишь онструктор.
+	 *
+	 */
+	public function __construct(){
+
+	}
+
+
+	/**
 	 * Создает объект сущности.
 	 * (фабричный метод)
 	 *
 	 * @return object							Объект конкретной сущности.
 	 */
-	static public function create(){
-
-		return new self();
-
-	}
+	abstract static public function create();
 
 
 	/**
@@ -46,15 +51,48 @@ abstract class CAbstractModel {
 	 * @return object							Объект с данными
 	 * @throws CModelWrongIdException			Если не удалось найти объект или что то случилось с БД
 	 */
-	static public function getById( $sId ){
+	abstract static public function getById( $sId );
+
+
+	/**
+	 * Механизм выборки списка по фильтру. Без фильтра выдаст кучу всех объектов коллекции.
+	 * (фабричный метод)
+	 *
+	 * @param array			$aFilter			Список фильтруемых свойств
+	 * @param int			$iLimit				Максимальное число выбираемых элементов
+	 * @param int			$iOffset			Порядковый номер элемента, начиная с которого надо вывести список.
+	 *
+	 * @return array							Список объектов, полученных по фильтру, может быть и пустым
+	 * @throws CModelException					Выкидывает в случае возникновения проблем с БД
+	 */
+	abstract public static function getList( $aFilter = array(), $iLimit = false, $iOffset = false );
+
+
+	/**
+	 * Возвращает название коллекции конкретной модели.
+	 * Абстрактный метод.
+	 *
+	 * @return string			Строковое название коллекции модели
+	 */
+	abstract protected function getCollectionName();
+
+
+	/**
+	 * Реализует общее тело метода getById
+	 *
+	 * @param CAbstractModel	$oPrototype		Объект-прототип модели, для которой и надо получить объект по идентификатору
+	 *
+	 */
+	static protected function getModelById( CAbstractModel $oPrototype, $sId ){
 
 		$oResult = NULL;
 
 		try{
 
-			$oResult = self::create();
+			// Да, в руках у нас сейчас всего лишь прототип, по хорошему, его нельзя использовать. Надо из него создать будущий результат.
+			$oResult = $oPrototype->create();
 
-			$aProperties = $oResult->getCollection()->findOne( array(
+			$aProperties = $oPrototype->getCollection()->findOne( array(
 				'_id' => new MongoId( $sId )
 			) );
 
@@ -69,50 +107,40 @@ abstract class CAbstractModel {
 		};
 
 		return $oResult;
+
 	}
+
 
 	/**
 	 * Механизм выборки списка по фильтру. Без фильтра выдаст кучу всех объектов коллекции.
 	 * (фабричный метод)
 	 *
-	 * @param aray			$aFilter			Список фильтруемых свойств
+	 * @param CAbstractModel	$oPrototype		Объект-прототип модели, для которой и надо получить реальный объект
+	 * @param array				$aFilter		Список фильтруемых свойств
+	 * @param int				$iLimit			Максимальное число выбираемых элементов
+	 * @param int				$iOffset		Порядковый номер элемента, начиная с которого надо вывести список.
 	 *
 	 * @return array							Список объектов, полученных по фильтру, может быть и пустым
 	 * @throws CModelException					Выкидывает в случае возникновения проблем с БД
 	 */
-	public static function getList( $aFilter = array() ){
+	static protected function getModelList( CAbstractModel $oPrototype, $aFilter = array(), $iLimit = false, $iOffset = false ){
 
 		$aResult = array();
+		$iOffset = intval( $iOffset );
+		$iLimit = intval( $iLimit );
 
 		try{
 
-			$oPrototype = self::create();
-			$aCriteria = array();
-
-			foreach( $aFilter as $sPropertyName => $mFilter ){
-
-				if( 'Id' == $sPropertyName ){
-
-					$sPropertyCode = '_id';
-					$mFilter = new MongoId( $mFilter );
-
-				}else{
-
-					if( !isset( $oPrototype->aProperties[ $sPropertyName ] ) ) continue;
-					$sPropertyCode = $oPrototype->aProperties[ $sPropertyName ]['code'];
-
-				};
-
-				$aCriteria[ $sPropertyCode ] = $mFilter;
-
-			};
+			$aCriteria = $oPrototype->makeDbCriteria( $aFilter );
 
 			$oObjects = $oPrototype->getCollection()->find( $aCriteria );
+			if( $iOffset ) $oObjects->skip( $iOffset );
+			if( $iLimit ) $oObjects->limit( $iLimit );
 
 			$aResultObjects = array();
 			foreach( $oObjects as $sId => $aData ){
 
-				$oCurrentObject = self::crete();
+				$oCurrentObject = $oPrototype->create();
 
 				$oCurrentObject->sId = $sId;
 				self::assignObjectProperties( $oCurrentObject, $aData );
@@ -130,6 +158,40 @@ abstract class CAbstractModel {
 		};
 
 		return $aResult;
+
+	}
+
+
+	/**
+	 * Помогает собрать критери для выборки из БД
+	 *
+	 * @param array			$aFilter			Список фильтруемых свойств
+	 *
+	 * @return array							ФСформированный критерий
+	 */
+	protected function makeDbCriteria( $aFilter ){
+
+		$aCriteria = array();
+
+		foreach( $aFilter as $sPropertyName => $mFilter ){
+
+			if( 'Id' == $sPropertyName ){
+
+				$sPropertyCode = '_id';
+				$mFilter = new MongoId( $mFilter );
+
+			}else{
+
+				if( !isset( $this->aProperties[ $sPropertyName ] ) ) continue;
+				$sPropertyCode = $this->aProperties[ $sPropertyName ]['code'];
+
+			};
+
+			$aCriteria[ $sPropertyCode ] = $mFilter;
+
+		};
+
+		return $aCriteria;
 
 	}
 
@@ -229,7 +291,7 @@ abstract class CAbstractModel {
 			$aProperties = $this->exportProperties();
 
 			$this->getCollection()->insert( $aProperties, array( 'safe' => true ) );
-			$this->sId = $aProperties['_id'];
+			$this->sId = trim( $aProperties['_id'] );
 
 		}catch( MongoException $e ){
 
@@ -241,11 +303,36 @@ abstract class CAbstractModel {
 
 	}
 
+
+	/**
+	 * Процесс обновления новой записи в БД.
+	 *
+	 */
 	protected function updateDbRecord(){
+
+		try{
+
+			$aProperties = $this->exportProperties();
+            $aProperties['_id'] = new MongoId( $this->sId );
+
+			$this->getCollection()->save( $aProperties, array( 'safe' => true ) );
+
+		}catch( MongoException $e ){
+
+			throw new CModelException( __METHOD__.' error : '.$e->getMessage() );
+
+		};
+
+		return true;
 
 	}
 
 
+	/**
+	 * Помогает из свойств объекта создать массив для БД.
+	 *
+	 * @return array							Массив вида "поле БД" => "Значение"
+	 */
 	protected function exportProperties(){
 
 		$aResult = array();
@@ -273,7 +360,7 @@ abstract class CAbstractModel {
 	public function getProperty( $sPropertyName, $mDefault = NULL ){
 
 		if( !isset( $this->aProperties[ $sPropertyName ] ) ) return $mDefault;
-		return $this->aProperties[ $sPropertyName ];
+		return $this->aProperties[ $sPropertyName ]['value'];
 
 	}
 
@@ -289,7 +376,8 @@ abstract class CAbstractModel {
 	public function setProperty( $sPropertyName, $mValue ){
 
 		if( !isset( $this->aProperties[ $sPropertyName ] ) ) return false;
-		$this->aProperties[ $sPropertyName ] = $mValue;
+		$this->aProperties[ $sPropertyName ]['modified'] = $this->aProperties[ $sPropertyName ]['value'] != $mValue;
+		$this->aProperties[ $sPropertyName ]['value'] = $mValue;
 		return true;
 
 	}
@@ -314,18 +402,9 @@ abstract class CAbstractModel {
 	 */
 	protected function getDB(){
 
-		return CResistry::service( 'DB' );
+		return CRegistry::service( 'DB' );
 
 	}
-
-
-	/**
-	 * Возвращает название коллекции конкретной модели.
-	 * Абстрактный метод.
-	 *
-	 * @return string			Строковое название коллекции модели
-	 */
-	abstract protected function getCollectionName();
 
 
 	/**

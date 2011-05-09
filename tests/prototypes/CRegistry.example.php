@@ -60,6 +60,19 @@ try{
 	echo( 'Вызов exReference::exampleStatic() '.( ( 'static' == CRegistry::service( 'exReference' )->exampleStatic() )? 'вернул нужный результат' : 'сработал неверно' ).PHP_EOL );
 	echo( 'Вызов exReference::exampleDinamic() '.( ( 'dinamic' == CRegistry::service( 'exReference' )->exampleDinamic() )? 'вернул нужный результат' : 'сработал неверно' ).PHP_EOL );
 
+	echo( 'Теперь попробуем получить доступ к сервису, которого нет.'.PHP_EOL );
+
+	try{
+
+		CRegistry::service( 'habrahabr' )->exampleStatic();
+		echo( 'Сервис доступен? О__о Быть такого не должно!'.PHP_EOL );
+
+	}catch( CRegistryException $e ){
+
+		echo( 'Выпало исключение ('.get_class( $e ).'): "'.$e->getMessage().'", значит все в порядке.'.PHP_EOL );
+
+	};
+
 }catch( CRegistryException $e ){
 
 	echo( 'При запросе сервиса выпало исключение : '.$e->getMessage() );

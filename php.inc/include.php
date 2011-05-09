@@ -18,8 +18,16 @@ require_once( BLOG_INCLUDE_ROOT.'/common/CModule.php' );
 // Инициализируем библиотеку автозагрузчика
 CModule::addAutoloadedClasses( array(
 
+	// Техническое окружение проекта
 	'CRegistry'				=> '/common/CRegistry.php',
 	'CDatabaseFactory'		=> '/common/CDatabaseFactory.php',
+
+	// Модели предметной среды
+	'CAbstractModel'		=> '/model/CAbstractModel.php',
+	'CModelException'		=> '/model/CAbstractModel.php',
+	'CUser'					=> '/model/CUser.php',
+	'CAbstractMessage'		=> '/model/CAbstractMessage.php',
+	'CNote'					=> '/model/CNote.php',
 
 ) );
 
@@ -33,6 +41,11 @@ try{
 	die( $e->getMessage() );
 
 };
+
+// Ставим сервисы предметной среды
+CRegistry::setService( 'User', 'CUser' );
+CRegistry::setService( 'Note', 'CNote' );
+CRegistry::setService( 'Comment', 'CComment' );
 
 
 ?>

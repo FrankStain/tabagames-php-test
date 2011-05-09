@@ -9,7 +9,7 @@
 
 error_reporting( E_ALL );
 
-require_once( preg_replace( '/([\/\\]tests[\/\\].+)/', '/php.inc/include.php', __FILE__ ) );
+require_once( preg_replace( '/([\/\\\]tests[\/\\\].+)/', '/php.inc/include.php', __FILE__ ) );
 
 // Этот класс нужен только для изменения корня автозагрузки.
 // Изменение корня автозагрузки в штатном режиме недопустимо, поэтому метод setAutoloadRoot является защищенным.
