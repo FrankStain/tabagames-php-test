@@ -23,7 +23,7 @@ try{
 	};
 
 	echo( 'Создаем нового пользователя.'.PHP_EOL );
-	$oUser = CRegistry::service('User')->create();
+	$oUser = CRegistry::service( 'User' )->create();
 
 	echo( 'Объект создался, теперь надо проверить, что это именно CUser.'.PHP_EOL );
 	if( $oUser instanceof CUser ){
@@ -49,9 +49,9 @@ try{
 
 	echo( 'Загружаем сохраненного пользователя через id и сравниваем.'.PHP_EOL );
 
-	$oUser2 = CRegistry::service('User')->getById( $oUser->getId() );
 	try{
 
+		$oUser2 = CRegistry::service( 'User' )->getById( $oUser->getId() );
 		if( $oUser->getProperty( 'Login', 'P' ) !== $oUser2->getProperty( 'Login', 'T' ) ) throw new CModelException( 'Поля Login у объектов разные...' );
 		if( $oUser->getProperty( 'Email', '@#$%^&' ) !== $oUser2->getProperty( 'Email', '(*&%^$%' ) ) throw new CModelException( 'Поля Email у объектов разные...' );
 
@@ -65,9 +65,9 @@ try{
 
 	echo( 'Загружаем сохраненного пользователя через login и сравниваем.'.PHP_EOL );
 
-	$oUser3 = CRegistry::service('User')->getByLogin( $oUser->getProperty( 'Login' ) );
 	try{
 
+		$oUser3 = CRegistry::service( 'User' )->getByLogin( $oUser->getProperty( 'Login' ) );
 		if( $oUser->getId() !== $oUser3->getId() ) throw new CModelException( 'У объектов разные Id...' );
 		if( $oUser->getProperty( 'Email', 'P' ) !== $oUser3->getProperty( 'Email', 'T' ) ) throw new CModelException( 'Поля Email у объектов разные...' );
 
@@ -78,6 +78,22 @@ try{
 
 	};
 	unset( $oUser3 );
+
+	echo( 'Изменим данные пользователя.'.PHP_EOL );
+	$oUser->setProperty( 'Email', 'new.mail@blogus.ru' );
+	$oUser->save();
+
+	$oUser2 = CRegistry::service( 'User' )->getById( $oUser->getId() );
+	if( $oUser->getProperty( 'Email', 'P' ) === $oUser2->getProperty( 'Email', 'T' ) ){
+
+		echo( 'Даные нормально изменились.'.PHP_EOL );
+
+	}else{
+
+		echo( 'Изменить данные объекта, почему-то, не удалось.'.PHP_EOL );
+		throw new CModelException( 'Тест не прошел до конца' );
+
+	};
 
 	echo( 'Удаляем пользователя.'.PHP_EOL );
 	$sUserID = $oUser->getId();
@@ -91,7 +107,7 @@ try{
 	echo( 'Пользователь удален, теперь стоит попробовать словить ошибку при его загрузке.'.PHP_EOL );
 	try{
 
-		$oUser2 = CRegistry::service('User')->getById( $sUserID );
+		$oUser2 = CRegistry::service( 'User' )->getById( $sUserID );
 		echo( 'Эээ... ошибка не поймалась.'.PHP_EOL );
 		throw new CModelException( 'Тест не прошел до конца' );
 
