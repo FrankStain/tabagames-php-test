@@ -38,7 +38,7 @@ try{
 
 	}else{
 
-		echo( 'Созданный объект не имеет отношения к заметкам, класс: '.get_class( $oUser ).PHP_EOL );
+		echo( 'Созданный объект не имеет отношения к заметкам, класс: '.get_class( $oNote ).PHP_EOL );
 		throw new CModelException( 'Надо поправить сервис Note в реестре' );
 
 	};

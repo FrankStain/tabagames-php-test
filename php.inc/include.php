@@ -28,6 +28,7 @@ CModule::addAutoloadedClasses( array(
 	'CUser'					=> '/model/CUser.php',
 	'CAbstractMessage'		=> '/model/CAbstractMessage.php',
 	'CNote'					=> '/model/CNote.php',
+	'CNoteComment'			=> '/model/CNoteComment.php',
 
 ) );
 
@@ -45,7 +46,6 @@ try{
 // Ставим сервисы предметной среды
 CRegistry::setService( 'User', 'CUser' );
 CRegistry::setService( 'Note', 'CNote' );
-CRegistry::setService( 'Comment', 'CComment' );
-
+CRegistry::setService( 'NoteComment', 'CNoteComment' );
 
 ?>
